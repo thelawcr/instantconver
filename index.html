@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>File Converter by InstantKarma · Convierte documentos e imágenes</title>
+  <meta name="description"
+    content="Convierte DOCX, PDF, Markdown, TXT, HTML, PNG, JPG y WEBP directamente en tu navegador. Tus archivos nunca se suben a ningún servidor.">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="File Converter by InstantKarma">
+  <meta property="og:description" content="Conversor de archivos privado: todo ocurre en tu navegador.">
+  <style>
+    :root {
+      --bg: #f2f2f7;
+      --text: #1d1d1f;
+      --sub: #6e6e73;
+      --slice: rgba(255, 255, 255, .85);
+      --slice-h: #fff;
+      --glass: rgba(255, 255, 255, .6);
+      --edge: rgba(0, 0, 0, .06);
+      --green: #30d158;
+      --blue: #0a84ff;
+      --b1: #bfe3ff;
+      --b2: #ffd6e7;
+      --b3: #d4ffe0;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      color-scheme: light
+    }
+
+    @media(prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000;
+        --text: #f5f5f7;
+        --sub: #98989d;
+        --slice: rgba(58, 58, 60, .75);
+        --slice-h: #48484a;
+        --glass: rgba(44, 44, 46, .6);
+        --edge: rgba(255, 255, 255, .08);
+        --b1: #0b2a52;
+        --b2: #3a1230;
+        --b3: #0c3320;
+        color-scheme: dark
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #000;
+      --text: #f5f5f7;
+      --sub: #98989d;
+      --slice: rgba(58, 58, 60, .75);
+      --slice-h: #48484a;
+      --glass: rgba(44, 44, 46, .6);
+      --edge: rgba(255, 255, 255, .08);
+      --b1: #0b2a52;
+      --b2: #3a1230;
+      --b3: #0c3320;
+      color-scheme: dark
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      z-index: -1;
+      background: radial-gradient(40% 35% at 20% 25%, var(--b1), transparent 70%), radial-gradient(35% 35% at 80% 30%, var(--b2), transparent 70%), radial-gradient(40% 40% at 50% 85%, var(--b3), transparent 70%);
+      filter: blur(30px)
+    }
+
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 36px 20px 48px;
+      text-align: center
+    }
+
+    h1 {
+      font-size: clamp(30px, 7vw, 44px);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      margin: 0
+    }
+
+    .by {
+      color: var(--sub);
+      font-size: 16px;
+      margin: 4px 0 26px
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--edge);
+      border-radius: 980px;
+      padding: 9px 20px;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -.01em
+    }
+
+    .pill i {
+      font-style: normal;
+      color: var(--sub);
+      min-width: 46px
+    }
+
+    .pill i.f {
+      color: var(--text)
+    }
+
+    .pill svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--sub);
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .wrap {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      margin: 22px auto 0
+    }
+
+    .wrap>svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .08))
+    }
+
+    .sl {
+      cursor: pointer;
+      transition: transform .45s cubic-bezier(.2, .9, .25, 1.2)
+    }
+
+    .sl path {
+      fill: var(--slice);
+      stroke: var(--slice);
+      stroke-width: 14;
+      stroke-linejoin: round;
+      transition: fill .25s, stroke .25s
+    }
+
+    .sl text {
+      fill: var(--text);
+      font-size: 16px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      transition: fill .25s
+    }
+
+    .sl:hover path {
+      fill: var(--slice-h);
+      stroke: var(--slice-h)
+    }
+
+    .sl.off {
+      opacity: .28;
+      cursor: not-allowed
+    }
+
+    .sl.off:hover path {
+      fill: var(--slice);
+      stroke: var(--slice)
+    }
+
+    .sl.sel path {
+      fill: url(#gr);
+      stroke: #2bc653;
+      filter: drop-shadow(0 8px 14px rgba(48, 209, 88, .45))
+    }
+
+    .sl.sel text {
+      fill: #fff;
+      font-size: 18px
+    }
+
+    .hub {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 46%;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--edge);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 8px 24px rgba(0, 0, 0, .08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform .25s, box-shadow .25s
+    }
+
+    .hub:hover,
+    .hub.on {
+      transform: translate(-50%, -50%) scale(1.04);
+      box-shadow: 0 0 0 3px var(--blue)
+    }
+
+    .hub svg {
+      width: 34px;
+      height: 34px;
+      stroke: var(--blue);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      margin-bottom: 6px
+    }
+
+    .hub b {
+      font-size: 16px;
+      font-weight: 600;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .hub span {
+      font-size: 13px;
+      color: var(--sub);
+      margin-top: 2px
+    }
+
+    .acts {
+      margin-top: 26px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      min-height: 50px
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 980px;
+      padding: 14px 34px;
+      font: 600 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      transition: .2s;
+      box-shadow: 0 6px 18px rgba(10, 132, 255, .35)
+    }
+
+    .btn.g {
+      background: var(--green);
+      box-shadow: 0 6px 18px rgba(48, 209, 88, .4)
+    }
+
+    .btn:disabled {
+      opacity: .3;
+      cursor: default;
+      box-shadow: none
+    }
+
+    .btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08)
+    }
+
+    .msg {
+      min-height: 22px;
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--sub)
+    }
+
+    .bar {
+      height: 6px;
+      width: min(280px, 70%);
+      margin: 16px auto 0;
+      border-radius: 99px;
+      background: var(--edge);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .3s
+    }
+
+    .bar.on {
+      opacity: 1
+    }
+
+    .bar::after {
+      content: "";
+      display: block;
+      height: 100%;
+      width: 40%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      animation: sl 1.1s ease-in-out infinite
+    }
+
+    @keyframes sl {
+      0% {
+        transform: translateX(-100%)
+      }
+
+      100% {
+        transform: translateX(250%)
+      }
+    }
+
+    .btn.busy {
+      pointer-events: none
+    }
+
+    .btn.busy::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 10px;
+      vertical-align: -2px;
+      border: 2px solid rgba(255, 255, 255, .4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: sp .7s linear infinite
+    }
+
+    @keyframes sp {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .wrap.busy .hub {
+      animation: pu 1.2s ease-in-out infinite
+    }
+
+    @keyframes pu {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1)
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.06)
+      }
+    }
+
+    .sr {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none
+    }
+
+    .hub:focus-within {
+      box-shadow: 0 0 0 3px var(--blue)
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+      border-radius: 8px
+    }
+
+    .sl:focus-visible {
+      outline: none
+    }
+
+    .sl:focus-visible path {
+      stroke: var(--blue)
+    }
+
+    .legal {
+      margin-top: 10px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .legal button,
+    .legal a {
+      background: none;
+      border: 0;
+      color: var(--sub);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 4px
+    }
+
+    .legal button:hover,
+    .legal a:hover {
+      color: var(--text)
+    }
+
+    dialog {
+      border: 0;
+      border-radius: 22px;
+      max-width: 560px;
+      width: calc(100% - 32px);
+      padding: 0;
+      background: Canvas;
+      color: var(--text);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .3);
+      position: fixed
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .35);
+      backdrop-filter: blur(6px)
+    }
+
+    .in {
+      padding: 28px;
+      max-height: 80vh;
+      overflow: auto;
+      text-align: left
+    }
+
+    .in h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      letter-spacing: -.02em;
+      padding-right: 36px
+    }
+
+    .in h3 {
+      font-size: 15px;
+      margin: 18px 0 4px
+    }
+
+    .in p,
+    .in li {
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--sub);
+      margin: 4px 0
+    }
+
+    .in ul {
+      padding-left: 20px;
+      margin: 6px 0
+    }
+
+    .in a {
+      color: var(--blue)
+    }
+
+    .in small {
+      display: block;
+      margin-top: 18px;
+      color: var(--sub);
+      font-size: 12px
+    }
+
+    .x {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--edge);
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      ::before,
+      ::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important
+      }
+    }
+
+    footer {
+      color: var(--sub);
+      font-size: 12px;
+      margin-top: 20px
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>InstantConver</h1>
+    <p class="by">by InstantKarma</p>
+    <div class="pill">De <i id="a">___</i><svg viewBox="0 0 24 24">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>a <i id="b">___</i></div>
+    <div class="wrap">
+      <svg viewBox="-215 -215 430 430" id="wheel" aria-label="Formatos de salida">
+        <defs>
+          <linearGradient id="gr" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#5de28a" />
+            <stop offset="1" stop-color="#28b84c" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <label class="hub" id="drop"><input type="file" id="inp" class="sr" aria-label="Subir archivo">
+        <svg viewBox="0 0 24 24" id="ic">
+          <path d="M12 16V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+        </svg>
+        <b id="fn">Subir archivo</b><span id="ft">o suéltalo aquí</span>
+      </label>
+    </div>
+    <div class="acts"><button class="btn" id="go" disabled>Convertir</button><button class="btn g" id="dl"
+        hidden>Descargar</button></div>
+    <div class="bar" id="bar"></div>
+    <noscript>
+      <p>Esta aplicación necesita JavaScript para convertir archivos en tu navegador.</p>
+    </noscript>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <footer>Imágenes (PNG, JPG, WEBP) · Documentos (DOCX, PDF, MD, TXT entre sí)</footer>
+    <nav class="legal" aria-label="Información"><button data-d="d-how">Cómo funciona</button><button
+        data-d="d-priv">Privacidad</button><button data-d="d-terms">Términos de uso</button><button
+        data-d="d-contact">Contacto</button></nav>
+    <p class="by" style="font-size:12px;margin:10px 0 0">© 2026 InstantKarma · Costa Rica</p>
+    <dialog id="d-contact">
+      <div class="in"><button class="x" aria-label="Cerrar">✕</button>
+        <h2>Contacto</h2>
+        <p>¿Dudas, errores o ideas para mejorar? Escríbeme.</p>
+        <ul>
+          <li>Correo: <a href="mailto:jorge_zamora28@outlook.com">jorge_zamora28@outlook.com</a></li>
+          <li>Teléfono: <a href="tel:+50687676340">+506 8767 6340</a></li>
+        </ul>
+      </div>
+    </dialog>
+    <dialog id="d-how">
+      <div class="in"><button class="x" aria-label="Cerrar">✕</button>
+        <h2>Cómo funciona</h2>
+        <ul>
+          <li>Toca el círculo del centro y elige (o suelta) tu archivo.</li>
+          <li>Elige el formato de salida en la rueda y pulsa Convertir.</li>
+          <li>Cuando termine, pulsa Descargar.</li>
+        </ul>
+        <h3>Formatos</h3>
+        <p>Documentos: DOCX, PDF, MD, TXT y HTML. Imágenes: PNG, JPG y WEBP. El audio llegará más adelante.</p>
+        <h3>Limitaciones</h3>
+        <ul>
+          <li>Un PDF escaneado (una foto) no tiene texto y no se puede leer.</li>
+          <li>Al convertir a DOCX o desde PDF se conserva el texto y su estructura básica, pero no las imágenes ni el
+            diseño complejo.</li>
+          <li>El PDF generado es una imagen del documento: el texto no se puede seleccionar.</li>
+          <li>Los archivos muy grandes dependen de la memoria de tu dispositivo.</li>
+        </ul>
+        <h3>Por ahora no incluye</h3>
+        <p>OCR (leer texto de PDF escaneados o fotos), audio y video, archivos protegidos con contraseña, el formato
+          .doc antiguo y convertir varios archivos a la vez.</p>
+        <h3>Mensajes que puedes ver</h3>
+        <ul>
+          <li><b>"Primero sube un archivo."</b> Toca el círculo central y elige un archivo antes de usar la rueda.</li>
+          <li><b>"Esa conversión llegará pronto."</b> Las porciones atenuadas de la rueda no están disponibles para ese
+            tipo de archivo.</li>
+          <li><b>"Este tipo de archivo todavía no es compatible."</b> Solo se admiten los formatos listados arriba. Si
+            es un .doc antiguo, guárdalo como .docx.</li>
+          <li><b>"PDF: no tiene texto (¿está escaneado?)."</b> El PDF es una imagen y no tiene texto que extraer.</li>
+          <li><b>"PDF: no se pudo cargar el lector."</b> Falló la descarga de la librería que lee PDF. Revisa tu
+            conexión e inténtalo de nuevo.</li>
+          <li><b>"No se pudo convertir este archivo."</b> El archivo puede estar dañado, protegido con contraseña o ser
+            demasiado grande para tu dispositivo. Prueba con otro o más pequeño.</li>
+          <li><b>"No se pudo guardar el archivo."</b> El navegador bloqueó la descarga. Permítela e inténtalo otra vez.
+          </li>
+        </ul>
+        <small>Conserva siempre el archivo original: el resultado puede variar en formato.</small>
+      </div>
+    </dialog>
+    <dialog id="d-priv">
+      <div class="in"><button class="x" aria-label="Cerrar">✕</button>
+        <h2>Política de privacidad</h2>
+        <p>Responsable: InstantKarma, Costa Rica. Esta política se basa en la Ley n.º 8968 de Protección de la Persona
+          frente al Tratamiento de sus Datos Personales y su reglamento.</p>
+        <h3>Tus archivos no se suben</h3>
+        <p>La conversión ocurre en tu navegador. No recibimos, vemos ni guardamos tus archivos ni su contenido.</p>
+        <h3>Datos que recopilamos</h3>
+        <p>Ninguno. No hay cuentas, formularios, cookies de seguimiento, analítica ni publicidad. Si esto cambia, te lo
+          informaremos y pediremos tu consentimiento antes de recopilar nada.</p>
+        <h3>Terceros</h3>
+        <p>Para convertir, la página carga librerías desde cdnjs (Cloudflare). Al hacerlo, ese proveedor puede registrar
+          datos técnicos como tu dirección IP y navegador. El proveedor que aloja este sitio también puede registrar
+          datos técnicos según sus propias políticas.</p>
+        <h3>Tus derechos</h3>
+        <p>Tienes derecho de acceso, rectificación, cancelación y oposición sobre tus datos personales. Si consideras
+          que se vulneraron tus derechos, puedes acudir a la Agencia de Protección de Datos de los Habitantes (PRODHAB,
+          prodhab.go.cr). Para ejercerlos, escríbenos a jorge_zamora28@outlook.com.</p>
+        <small>Última actualización: octubre de 2026.</small>
+      </div>
+    </dialog>
+    <dialog id="d-terms">
+      <div class="in"><button class="x" aria-label="Cerrar">✕</button>
+        <h2>Términos de uso</h2>
+        <h3>1. Servicio</h3>
+        <p>File Converter se ofrece gratis y "tal cual", sin garantía de disponibilidad ni de resultados.</p>
+        <h3>2. Tus archivos</h3>
+        <p>Eres responsable de los archivos que conviertes: debes tener derecho a usarlos y no emplear el servicio para
+          fines ilícitos o que infrinjan derechos de terceros. Tus archivos siguen siendo tuyos.</p>
+        <h3>3. Resultados y responsabilidad</h3>
+        <p>La conversión puede alterar el formato o perder elementos. Conserva siempre el original. En la medida que lo
+          permita la ley, InstantKarma no responde por pérdidas o daños derivados del uso del servicio; esto no afecta
+          los derechos que la ley te reconoce como consumidor.</p>
+        <h3>4. Propiedad</h3>
+        <p>La aplicación, su diseño y la marca InstantKarma pertenecen a sus titulares. Las librerías de terceros
+          mantienen sus propias licencias.</p>
+        <h3>5. Ley aplicable y cambios</h3>
+        <p>Estos términos se rigen por las leyes de Costa Rica. Podemos actualizarlos; el uso continuado implica su
+          aceptación.</p>
+        <small>Última actualización: octubre de 2026.</small>
+      </div>
+    </dialog>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    const FM = ["PDF", "DOCX", "MD", "PNG", "JPG", "WEBP", "TXT", "HTML"];
+    const MAP = { png: ["PNG", "JPG", "WEBP"], jpg: ["PNG", "JPG", "WEBP"], webp: ["PNG", "JPG", "WEBP"], md: ["PDF", "DOCX", "TXT", "HTML"], txt: ["PDF", "DOCX", "MD", "HTML"], docx: ["PDF", "MD", "TXT", "HTML"], pdf: ["DOCX", "MD", "TXT", "HTML"] };
+    const MIME = { PNG: "image/png", JPG: "image/jpeg", WEBP: "image/webp" };
+    let file = null, ext = "", target = null, out = null, outName = "";
+    const $ = id => document.getElementById(id), NS = "http://www.w3.org/2000/svg", RO = 183, RI = 115;
+    const pol = (r, d) => [r * Math.cos(d * Math.PI / 180), r * Math.sin(d * Math.PI / 180)];
+    function build() {
+      const w = $("wheel");
+      FM.forEach((f, i) => {
+        const a0 = -90 + 45 * i + 4, a1 = -90 + 45 * (i + 1) - 4, m = -90 + 45 * i + 22.5;
+        const [ox0, oy0] = pol(RO, a0), [ox1, oy1] = pol(RO, a1), [ix0, iy0] = pol(RI, a0), [ix1, iy1] = pol(RI, a1), [tx, ty] = pol((RO + RI) / 2, m);
+        const g = document.createElementNS(NS, "g"); g.setAttribute("class", "sl"); g.dataset.f = f; g._m = m;
+        g.innerHTML = `<path d="M${ox0} ${oy0}A${RO} ${RO} 0 0 1 ${ox1} ${oy1}L${ix1} ${iy1}A${RI} ${RI} 0 0 0 ${ix0} ${iy0}Z"/><text x="${tx}" y="${ty}">${f}</text>`;
+        g.onclick = () => pick(f); g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", "Convertir a " + f); g.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(f) } }; w.appendChild(g);
+      });
+      refresh();
+    }
+    function refresh() {
+      const ok = MAP[ext] || [];
+      document.querySelectorAll(".sl").forEach(g => {
+        const f = g.dataset.f, sel = f === target;
+        g.classList.toggle("off", !ok.includes(f) || f === ext.toUpperCase());
+        g.classList.toggle("sel", sel); g.setAttribute("aria-disabled", g.classList.contains("off")); g.setAttribute("aria-pressed", sel);
+        const [dx, dy] = sel ? pol(15, g._m) : [0, 0];
+        g.style.transform = `translate(${dx}px,${dy}px) scale(${sel ? 1.04 : 1})`;
+      });
+      $("b").textContent = target || "___"; $("b").className = target ? "f" : "";
+      $("go").disabled = !(file && target); $("go").hidden = !!out;
+    }
+    function pick(f) {
+      const g = [...document.querySelectorAll(".sl")].find(x => x.dataset.f === f);
+      if (g.classList.contains("off")) { say(file ? "Esa conversión llegará pronto." : "Primero sube un archivo."); return }
+      target = f; out = null; $("dl").hidden = true; say(""); refresh();
+    }
+    function say(t) { $("msg").textContent = t }
+    function load(f) {
+      file = f; ext = (f.name.split(".").pop() || "").toLowerCase(); if (ext === "jpeg") ext = "jpg";
+      target = null; out = null; $("dl").hidden = true;
+      const sz = f.size > 1e6 ? (f.size / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(f.size / 1e3)) + " KB";
+      $("fn").textContent = f.name; $("ft").textContent = (ext.toUpperCase() || "?") + " · " + sz;
+      $("ic").style.display = "none";
+      $("a").textContent = ext.toUpperCase() || "___"; $("a").className = "f";
+      say(MAP[ext] ? "Elige el formato de salida en la rueda." : ext === "doc" ? "Los .doc antiguos no se admiten: guárdalo como .docx desde Word." : "Este tipo de archivo todavía no es compatible.");
+      refresh();
+    }
+    $("inp").onchange = e => e.target.files[0] && load(e.target.files[0]);
+    const d = $("drop");
+    ["dragover", "dragenter"].forEach(n => d.addEventListener(n, e => { e.preventDefault(); d.classList.add("on") }));
+    ["dragleave", "drop"].forEach(n => d.addEventListener(n, e => { e.preventDefault(); d.classList.remove("on") }));
+    d.addEventListener("drop", e => e.dataTransfer.files[0] && load(e.dataTransfer.files[0]));
+    const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    function inl(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\*([^*]+)\*/g, "<em>$1</em>").replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>') }
+    function mdToHtml(md) {
+      const o = []; let list = null, para = [], code = null;
+      const fp = () => { if (para.length) { o.push("<p>" + inl(para.join(" ")) + "</p>"); para = [] } };
+      const fl = () => { if (list) { o.push("</" + list + ">"); list = null } };
+      for (const l of md.replace(/\r/g, "").split("\n")) {
+        if (code !== null) { if (l.startsWith("```")) { o.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); code = null } else code.push(l); continue }
+        if (l.startsWith("```")) { fp(); fl(); code = []; continue }
+        let m;
+        if (m = l.match(/^(#{1,6})\s+(.*)/)) { fp(); fl(); o.push(`<h${m[1].length}>${inl(m[2])}</h${m[1].length}>`) }
+        else if (m = l.match(/^\s*([-*+]|\d+\.)\s+(.*)/)) { fp(); const t = /\d/.test(m[1]) ? "ol" : "ul"; if (list !== t) { fl(); o.push("<" + t + ">"); list = t } o.push("<li>" + inl(m[2]) + "</li>") }
+        else if (!l.trim()) { fp(); fl() }
+        else { fl(); para.push(l.trim()) }
+      }
+      fp(); fl(); return o.join("\n")
+    }
+    async function toHtml() {
+      if (ext === "pdf") return pdfToHtml();
+      if (ext === "docx") return (await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() })).value;
+      const t = await file.text();
+      return ext === "md" ? mdToHtml(t) : t.split(/\n{2,}/).map(p => "<p>" + esc(p).replace(/\n/g, "<br>") + "</p>").join("\n");
+    }
+    function htmlToMd(root) {
+      const w = n => {
+        if (n.nodeType === 3) return n.textContent.replace(/\s+/g, " ");
+        if (n.nodeType !== 1) return "";
+        const c = () => [...n.childNodes].map(w).join(""), t = n.tagName.toLowerCase();
+        if (/^h[1-6]$/.test(t)) return "\n\n" + "#".repeat(+t[1]) + " " + c().trim() + "\n\n";
+        if (t === "p") return "\n\n" + c().trim() + "\n\n";
+        if (t === "strong" || t === "b") return "**" + c().trim() + "**";
+        if (t === "em" || t === "i") return "*" + c().trim() + "*";
+        if (t === "a") return "[" + c() + "](" + n.getAttribute("href") + ")";
+        if (t === "br") return "  \n";
+        if (t === "code") return "`" + c() + "`";
+        if (t === "ul" || t === "ol") return "\n\n" + [...n.children].map((li, i) => (t === "ol" ? (i + 1) + ". " : "- ") + w(li).trim()).join("\n") + "\n\n";
+        if (t === "table") return "\n\n" + [...n.querySelectorAll("tr")].map(r => [...r.cells].map(x => x.textContent.trim()).join(" | ")).join("\n") + "\n\n";
+        return c()
+      };
+      return w(root).replace(/\n{3,}/g, "\n\n").trim() + "\n"
+    }
+    const need = u => new Promise((r, j) => { if (document.querySelector('script[src="' + u + '"]')) return r(); const s = document.createElement("script"); s.src = u; s.onload = r; s.onerror = () => j(new Error("PDF: no se pudo cargar el lector.")); document.head.appendChild(s) });
+    async function pdfToHtml() {
+      const B = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+      await need(B + "pdf.min.js"); await need(B + "pdf.worker.min.js");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = B + "pdf.worker.min.js";
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise, L = [];
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const tc = await (await pdf.getPage(p)).getTextContent(); let cur = null;
+        for (const it of tc.items) {
+          if (!it.str) continue;
+          const y = it.transform[5], h = Math.abs(it.transform[3]) || it.height;
+          if (cur && Math.abs(y - cur.y) < h * .5) cur.t += it.str; else { cur = { t: it.str, y, h, p }; L.push(cur) }
+        }
+      }
+      if (!L.some(l => l.t.trim())) throw new Error("PDF: no tiene texto (¿está escaneado?).");
+      const hs = L.map(l => Math.round(l.h)).sort((a, b) => a - b), med = hs[hs.length >> 1] || 10, o = []; let pa = [];
+      const fp = () => { if (pa.length) { o.push("<p>" + esc(pa.join(" ")) + "</p>"); pa = [] } };
+      L.forEach((l, i) => {
+        const t = l.t.replace(/\s+/g, " ").trim(), pv = L[i - 1];
+        if (!t) { fp(); return }
+        if (l.h > med * 1.25 && t.length < 100) { fp(); o.push("<h2>" + esc(t) + "</h2>"); return }
+        if (pv && pv.p === l.p && pv.y - l.y > l.h * 1.9) fp();
+        pa.push(t);
+      });
+      fp(); return o.join("\n");
+    }
+    async function toDocx(root) {
+      const X = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const runs = (n, st) => {
+        if (n.nodeType === 3) { const x = n.textContent.replace(/\s+/g, " "); return x ? [[x, st]] : [] }
+        if (n.nodeType !== 1) return [];
+        const t = n.tagName.toLowerCase(), s = { ...st };
+        if (t === "strong" || t === "b") s.b = 1;
+        if (t === "em" || t === "i") s.i = 1;
+        if (t === "code") s.c = 1;
+        if (t === "br") return [["\n", s]];
+        return [...n.childNodes].flatMap(c => runs(c, s));
+      };
+      const rx = (r, sz) => r.map(([x, s]) => x === "\n" ? '<w:r><w:br/></w:r>' : '<w:r><w:rPr>' + (s.c ? '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/>' : "") + (s.b ? "<w:b/>" : "") + (s.i ? "<w:i/>" : "") + (sz ? '<w:sz w:val="' + sz + '"/>' : "") + '</w:rPr><w:t xml:space="preserve">' + X(x) + '</w:t></w:r>').join("");
+      const para = (n, b = {}, pre = "", ind = 0) => '<w:p><w:pPr><w:spacing w:after="160"/>' + (ind ? '<w:ind w:left="' + ind + '"/>' : "") + '</w:pPr>' + (pre ? '<w:r><w:t xml:space="preserve">' + pre + '</w:t></w:r>' : "") + rx(runs(n, b), b.sz) + '</w:p>';
+      const out = [];
+      const walk = n => {
+        for (const c of n.childNodes) {
+          if (c.nodeType === 3) { if (c.textContent.trim()) out.push(para(c)); continue }
+          if (c.nodeType !== 1) continue;
+          const t = c.tagName.toLowerCase();
+          if (/^h[1-6]$/.test(t)) out.push(para(c, { b: 1, sz: [40, 34, 30, 26, 24, 22][t[1] - 1] }));
+          else if (t === "ul" || t === "ol") [...c.children].forEach((li, i) => out.push(para(li, {}, t === "ol" ? (i + 1) + ". " : "• ", 720)));
+          else if (t === "pre") out.push(para(c, { c: 1 }));
+          else if (t === "table") c.querySelectorAll("tr").forEach(r => out.push('<w:p><w:r><w:t xml:space="preserve">' + X([...r.cells].map(x => x.textContent.trim()).join("   |   ")) + '</w:t></w:r></w:p>'));
+          else if (t === "p" || t === "li") out.push(para(c));
+          else if (c.children.length) walk(c);
+          else if (c.textContent.trim()) out.push(para(c));
+        }
+      };
+      walk(root);
+      const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', z = new JSZip();
+      z.file("[Content_Types].xml", H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+      z.file("_rels/.rels", H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+      z.file("word/document.xml", H + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + out.join("") + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>');
+      return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    }
+    async function fromHtml(html, t) {
+      const box = document.createElement("div"); box.innerHTML = html;
+      if (t === "HTML") return new Blob([`<!DOCTYPE html><meta charset="utf-8"><body style="font:16px/1.6 -apple-system,system-ui,sans-serif;max-width:760px;margin:40px auto;padding:0 20px">${html}<\/body>`], { type: "text/html" });
+      if (t === "MD") return new Blob([htmlToMd(box)], { type: "text/markdown" });
+      if (t === "DOCX") return toDocx(box);
+      const fnt = "width:535px;font:11px/1.6 Arial,Helvetica,sans-serif;font-kerning:none;letter-spacing:normal;color:#000;background:#fff";
+      if (t === "TXT") { box.style.cssText = "position:fixed;left:-9999px;top:0;" + fnt; document.body.appendChild(box); const s = box.innerText.trim() + "\n"; box.remove(); return new Blob([s], { type: "text/plain" }) }
+      box.style.cssText = fnt;
+      try {
+        const doc = new jspdf.jsPDF({ unit: "pt", format: "a4" });
+        await new Promise(r => doc.html(box, { x: 0, y: 0, margin: [30, 30, 30, 30], autoPaging: "text", width: 535, windowWidth: 535, callback: r }));
+        return doc.output("blob");
+      } finally { box.remove() }
+    }
+    function busy(b) { $("go").classList.toggle("busy", b); $("go").textContent = b ? "Convirtiendo…" : "Convertir"; $("bar").classList.toggle("on", b); document.querySelector(".wrap").classList.toggle("busy", b) }
+    $("go").onclick = async () => {
+      try {
+        busy(true); await new Promise(r => setTimeout(r, 600)); say("");
+        const base = file.name.replace(/\.[^.]+$/, ""), t = target.toLowerCase();
+        if (MIME[target]) {
+          const bmp = await createImageBitmap(file), c = document.createElement("canvas");
+          c.width = bmp.width; c.height = bmp.height; const x = c.getContext("2d");
+          if (target === "JPG") { x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height) }
+          x.drawImage(bmp, 0, 0);
+          out = await new Promise(r => c.toBlob(r, MIME[target], .92));
+        } else {
+          out = await fromHtml(await toHtml(), target);
+        }
+        outName = base + "." + t;
+        $("dl").hidden = false; $("go").hidden = true; say("Listo: " + outName);
+      } catch (e) { say(e && e.message && e.message.startsWith("PDF") ? e.message : "No se pudo convertir este archivo.") }
+      busy(false);
+    };
+    $("dl").onclick = async () => {
+      try {
+        const dn = window.claude ? await claude.use("downloads") : null;
+        if (dn) { await dn.save({ filename: outName, data: out }); return }
+        const a = document.createElement("a"); a.href = URL.createObjectURL(out); a.download = outName; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      } catch (e) { if (e && e.code !== "declined") say("No se pudo guardar el archivo.") }
+    };
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-d]"); if (b) { $(b.dataset.d).showModal(); return }
+      const x = e.target.closest(".x"); if (x) { x.closest("dialog").close(); return }
+      if (e.target.tagName === "DIALOG") e.target.close();
+    });
+    build();
+  </script>
+</body>
+
+</html>
