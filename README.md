@@ -1,4 +1,4 @@
-# File Converter by InstantKarma
+# RouletteConverter by InstantKarma
 
 Conversor de documentos e imágenes que funciona por completo en el navegador: los archivos nunca se suben a un servidor. Está publicado en Vercel como sitio estático, sin proceso de compilación.
 
