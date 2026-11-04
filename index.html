@@ -25,29 +25,33 @@
     <div class="pill">De <i id="a">___</i><svg viewBox="0 0 24 24">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>a <i id="b">___</i></div>
-    <div class="wrap">
+    <div class="wrap" id="wrap">
       <svg viewBox="-215 -215 430 430" id="wheel" aria-label="Formatos de salida">
         <defs>
           <linearGradient id="gr" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#5de28a" />
             <stop offset="1" stop-color="#28b84c" />
           </linearGradient>
+          <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0a84ff" />
+            <stop offset="1" stop-color="#30d158" />
+          </linearGradient>
         </defs>
+        <circle class="ring" r="206" />
       </svg>
-      <label class="hub" id="drop"><input type="file" id="inp" class="sr" aria-label="Subir archivo">
-        <svg viewBox="0 0 24 24" id="ic">
-          <path d="M12 16V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+      <input type="file" id="inp" class="sr" tabindex="-1" aria-hidden="true">
+      <button type="button" class="hub" id="hub">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path id="icp" />
         </svg>
-        <b id="fn">Subir archivo</b><span id="ft">o suéltalo aquí</span>
-      </label>
+        <b id="fn"></b><span id="ft"></span>
+      </button>
     </div>
-    <div class="acts"><button class="btn" id="go" disabled>Convertir</button><button class="btn g" id="dl"
-        hidden>Descargar</button></div>
-    <div class="bar" id="bar"></div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <div class="acts"><button type="button" class="btn" id="reset" hidden></button></div>
     <noscript>
       <p>Esta aplicación necesita JavaScript para convertir archivos en tu navegador.</p>
     </noscript>
-    <div class="msg" id="msg" role="status" aria-live="polite"></div>
     <footer>Imágenes (PNG, JPG, WEBP) · Documentos (DOCX, PDF, MD, TXT entre sí)</footer>
     <nav class="legal" aria-label="Información"><button data-d="d-how">Cómo funciona</button><button
         data-d="d-priv">Privacidad</button><button data-d="d-terms">Términos de uso</button><button
@@ -67,9 +71,9 @@
       <div class="in"><button class="x" aria-label="Cerrar">✕</button>
         <h2>Cómo funciona</h2>
         <ul>
-          <li>Toca el círculo del centro y elige (o suelta) tu archivo.</li>
-          <li>Elige el formato de salida en la rueda y pulsa Convertir.</li>
-          <li>Cuando termine, pulsa Descargar.</li>
+          <li>Toca el círculo del centro para elegir tu archivo, o suéltalo en cualquier parte de la página.</li>
+          <li>Elige el formato de salida en la rueda y toca Convertir en el círculo.</li>
+          <li>Cuando termine, toca Descargar en el círculo.</li>
         </ul>
         <h3>Formatos</h3>
         <p>Documentos: DOCX, PDF, MD, TXT y HTML. Imágenes: PNG, JPG y WEBP (también a PDF). El audio llegará más

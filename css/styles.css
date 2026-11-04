@@ -8,6 +8,8 @@
   --edge: rgba(0, 0, 0, .06);
   --green: #30d158;
   --blue: #0a84ff;
+  --red: #c9182b;
+  --ok: #1c7c34;
   --b1: #bfe3ff;
   --b2: #ffd6e7;
   --b3: #d4ffe0;
@@ -29,6 +31,8 @@
     --b1: #0b2a52;
     --b2: #3a1230;
     --b3: #0c3320;
+    --red: #ff6961;
+    --ok: #30d158;
     color-scheme: dark
   }
 }
@@ -44,6 +48,8 @@
   --b1: #0b2a52;
   --b2: #3a1230;
   --b3: #0c3320;
+  --red: #ff6961;
+  --ok: #30d158;
   color-scheme: dark
 }
 
@@ -211,12 +217,14 @@ h1 {
   align-items: center;
   justify-content: center;
   padding: 14px;
+  color: var(--text);
+  font: inherit;
   cursor: pointer;
-  transition: transform .25s, box-shadow .25s
+  transition: transform .25s, box-shadow .25s, background .25s, color .25s
 }
 
 .hub:hover,
-.hub.on {
+body.drag .hub {
   transform: translate(-50%, -50%) scale(1.04);
   box-shadow: 0 0 0 3px var(--blue)
 }
@@ -244,102 +252,127 @@ h1 {
 .hub span {
   font-size: 13px;
   color: var(--sub);
-  margin-top: 2px
+  margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
 }
 
-.acts {
-  margin-top: 26px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  min-height: 50px
-}
-
-.btn {
-  border: 0;
-  border-radius: 980px;
-  padding: 14px 34px;
-  font: 600 17px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  background: var(--blue);
+.hub.ready,
+.hub.done {
   color: #fff;
-  cursor: pointer;
-  transition: .2s;
-  box-shadow: 0 6px 18px rgba(10, 132, 255, .35)
+  border-color: transparent
 }
 
-.btn.g {
-  background: var(--green);
-  box-shadow: 0 6px 18px rgba(48, 209, 88, .4)
+.hub.ready {
+  background: #0071e3;
+  box-shadow: 0 10px 28px rgba(0, 113, 227, .4)
 }
 
-.btn:disabled {
-  opacity: .3;
-  cursor: default;
-  box-shadow: none
+.hub.done {
+  background: #248a3d;
+  box-shadow: 0 10px 28px rgba(36, 138, 61, .45)
 }
 
-.btn:not(:disabled):hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08)
+.hub.ready svg,
+.hub.done svg {
+  stroke: #fff
+}
+
+.hub.ready span,
+.hub.done span {
+  color: rgba(255, 255, 255, .88)
+}
+
+.hub.done:hover {
+  box-shadow: 0 0 0 3px var(--green)
+}
+
+.hub.nudge {
+  animation: nu .45s ease-in-out
+}
+
+@keyframes nu {
+  50% {
+    transform: translate(-50%, -50%) scale(1.09)
+  }
+}
+
+.ring {
+  fill: none;
+  stroke: url(#rg);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 320 974;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s
+}
+
+.wrap.busy .ring {
+  opacity: 1;
+  animation: sp 1.2s linear infinite
+}
+
+.wrap.busy .hub {
+  cursor: progress
+}
+
+.wrap.busy .sl {
+  pointer-events: none
+}
+
+body.drag::after {
+  content: "";
+  position: fixed;
+  inset: 10px;
+  z-index: 5;
+  border: 3px dashed var(--blue);
+  border-radius: 22px;
+  pointer-events: none
 }
 
 .msg {
   min-height: 22px;
-  margin-top: 14px;
-  font-size: 14px;
-  color: var(--sub)
+  margin-top: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text)
 }
 
-.bar {
-  height: 6px;
-  width: min(280px, 70%);
-  margin: 16px auto 0;
-  border-radius: 99px;
-  background: var(--edge);
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity .3s
+.msg.err {
+  color: var(--red);
+  font-weight: 600
 }
 
-.bar.on {
-  opacity: 1
+.msg.ok {
+  color: var(--ok);
+  font-weight: 600
 }
 
-.bar::after {
-  content: "";
-  display: block;
-  height: 100%;
-  width: 40%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--blue), var(--green));
-  animation: sl 1.1s ease-in-out infinite
+.acts {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  min-height: 42px
 }
 
-@keyframes sl {
-  0% {
-    transform: translateX(-100%)
-  }
-
-  100% {
-    transform: translateX(250%)
-  }
+.btn {
+  border: 1px solid var(--edge);
+  border-radius: 980px;
+  padding: 10px 22px;
+  font: 600 15px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  color: var(--text);
+  cursor: pointer;
+  transition: .2s
 }
 
-.btn.busy {
-  pointer-events: none
-}
-
-.btn.busy::before {
-  content: "";
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  margin-right: 10px;
-  vertical-align: -2px;
-  border: 2px solid rgba(255, 255, 255, .4);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: sp .7s linear infinite
+.btn:hover {
+  background: var(--slice-h)
 }
 
 @keyframes sp {
@@ -372,14 +405,16 @@ h1 {
   pointer-events: none
 }
 
-.hub:focus-within {
-  box-shadow: 0 0 0 3px var(--blue)
-}
-
 :focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 3px;
   border-radius: 8px
+}
+
+.hub:focus-visible {
+  outline: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--blue)
 }
 
 .sl:focus-visible {
@@ -496,6 +531,11 @@ dialog::backdrop {
   ::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important
+  }
+
+  .wrap.busy .ring {
+    animation: none !important;
+    stroke-dasharray: none
   }
 }
 
